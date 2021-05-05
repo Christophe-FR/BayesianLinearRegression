@@ -124,7 +124,7 @@ if df is not None:
         hpdf = hpdf.append({'alpha': alpha, 'beta': beta, 'gamma': gamma, 'lambda': alpha/beta},ignore_index=True)     
     hpdf
     
-    sigmaN = 1/beta + np.diag(np.dot(X,np.dot(SN,X.T)))
+    sigmaN = np.sqrt(1/beta + np.diag(np.dot(X,np.dot(SN,X.T))))
     muN = np.dot(X, mN )
     
     st.header('Results')
