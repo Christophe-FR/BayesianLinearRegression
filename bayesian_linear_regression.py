@@ -19,19 +19,19 @@ import os
 
 
 
-def get_table_download_link_csv(df):
+def get_table_download_link_csv(df, text = 'download'):
     csv = df.to_csv().encode()
     b64 = base64.b64encode(csv).decode()
-    href = f'<a href="data:file/csv;base64,{b64}" download="weights.csv" target="_blank">Download table as csv</a>'
+    href = f'<a href="data:file/csv;base64,{b64}" download="weights.csv" target="_blank">'+ text +'</a>'
     return href    
 
 
 
 st.title('Bayesian Linear Regression')
 
-st.write('If there is one algorithm that has experienced massive adoption accross all domains, it is surely the least square regression. It is literally everywhere on :earth_americas:! Finance, science and technology use it extensively to predict, model and win the race of high-accuracy systems. The straight line fitting is commonly the entry point of the field but many more variants are living out there and are getting increasingly popular with the raise of Artificial Intelligence.')
+st.write('If there is one algorithm that has experienced massive adoption accross all domains, it is surely the least square regression. It is literally everywhere on :earth_americas:! Finance, science and technology use it extensively to predict, model and win the race of high-accuracy systems. The straight line fitting is a typical entry point of the field but many more variants are living out there and are getting increasingly popular with the raise of Artificial Intelligence.')
 
-st.write('In this application you will be able to experiment with linear models which are both powerful and elegant. A linear model $\mathcal{M}$  attempts to explain the target $y$ from a weighted linear combination of the input features $(x_j)_{1..M}$ with the weights $(w_j)_{1..M}$. The general form of a linear model is as follow:')
+st.write('In this application you will be able to experiment with linear models which are both powerful and elegant. A linear model $\mathcal{M}$  attempts to explain the target variable $y$ from a weighted linear combination of the input features $(x_j)_{1..M}$ with the weights $(w_j)_{1..M}$. The general form of a linear model is as follow:')
 
 st.write(r'$\mathcal{M} : y = \sum{w_jx_j} + \epsilon$ where $\epsilon$ is a 0-mean gaussian noise of precision $\beta=\frac{1}{\sigma^2}$.')
 
@@ -41,23 +41,27 @@ st.write('The goal in the following is to determine the values of weights.')
 
 st.header('Load data')
 
+# choose file
 st.write('Import your data ($y$ shall be the last column and $x$ the next to last) or use a predefined data set.')
-datasource = st.radio('Source',('From CSV', 'From Example'))
+datasource = st.radio('Source',('From CSV', 'From Example: Parabola', 'From Example: Sine'), index=2)
 
 if datasource == 'From CSV' :
     file = st.file_uploader("Upload Files",type=['csv'])
-    if file is not None:
-        df = pd.read_csv(file, delimiter = ';')
-    else:
-        df = None
+elif datasource == 'From Example: Parabola' :
+    file = 'samples/parabola.csv'
+elif datasource == 'From Example: Sine' :
+    file = 'samples/sine.csv'
 else:
-    df= pd.DataFrame(
-            {'x': np.array([1,2,3,4,5]),
-             'y': np.array([2,5,10,17,26] + np.array([-0.008046  ,  0.00028632,  0.00710868,  0.00677746,  0.00552161])
-             )})
+    file = None
+
+# create dataframe
+if file is not None:
+    df = pd.read_csv(file)
+else:
+    df = None
 
 
-    
+# process dataframe
 if df is not None:
     df
     x = df.iloc[:,-2].to_numpy()
@@ -75,7 +79,7 @@ if df is not None:
     fun_str = st.text_input('List of kernel functions (separated by commas) - for example: x**2, sin(x), sqrt(x), 1', value='1')
     if fun_str != '':
         for fun in fun_str.split(','):
-            df.insert(loc=0, column=fun, value=df.eval(fun))
+            df.insert(loc=0, column=fun.strip(), value=df.eval(fun))
     df
     
     
@@ -106,6 +110,7 @@ if df is not None:
     hpdf = pd.DataFrame({'alpha': [alpha], 'beta': [beta], 'gamma': [gamma], 'lambda': [alpha/beta]})
     
     thres = 1e-6
+    overflow = 1e12
     for _ in range(1000):
         S0 = ( 1 / alpha ) * np.eye(M)
         SN = np.linalg.inv( np.linalg.inv(S0) + beta * XTX )
@@ -119,7 +124,7 @@ if df is not None:
         if beta_trainable:
             beta = 1.0 / ( np.sum(residual**2) / (N - gamma) )
         lmbda = alpha/beta
-        if np.abs(alpha - hpdf['alpha'].iloc[-1]) < thres and np.abs(beta - hpdf['beta'].iloc[-1]) < thres:
+        if (np.abs(alpha - hpdf['alpha'].iloc[-1]) < thres and np.abs(beta - hpdf['beta'].iloc[-1]) < thres) or alpha > overflow or beta > overflow:
             break;
         hpdf = hpdf.append({'alpha': alpha, 'beta': beta, 'gamma': gamma, 'lambda': alpha/beta},ignore_index=True)     
     hpdf
@@ -128,7 +133,7 @@ if df is not None:
     muN = np.dot(X, mN )
     
     st.header('Results')
-    st.write('The plot below shows the prediction with the maximum a posteriori weights, and the posterior predictive distribution which indicates the uncertainty related to both the model and the noise of targets.')
+    st.write('The plot below shows the prediction with the maximum a posteriori weights, and the posterior predictive distribution which indicates the uncertainty related to both the model and the noise of the target values.')
     
     red = 'rgba(255, 0, 0, 0.3)'
     fig = go.Figure()
@@ -164,9 +169,14 @@ if df is not None:
     fig
     
     weights= pd.DataFrame({'Weights': df.columns[0:-1], 'Values': mN})
-    weights
     
-    st.markdown(get_table_download_link_csv(weights), unsafe_allow_html=True)
+    st.write(r'$y \approx$')
+    for j, label in enumerate(weights['Weights']):
+        st.write(weights['Values'][j], ' $' + label + (j!=M-1)*'+' + '$')
+        
+        
+    st.write('')
+    st.markdown(get_table_download_link_csv(weights, 'Download weights as CSV.'), unsafe_allow_html=True)
 
 
 
@@ -175,7 +185,16 @@ st.write('')
 st.write('')
 st.write('')
 
+# import time
+# import streamlit as st
 
+# text = "Welcome to the first day... of the rest... of your life"
+
+
+# t = st.empty()
+# for i in range(len(text) + 1):
+#     t.markdown("## %s..." % text[0:i])
+#     time.sleep(0.1)
 
 
 st.write('---')
@@ -193,9 +212,9 @@ if st.button("Learn More about Bayesian Regression"):
     st.write('Let us analyze each terms:')
     st.write(r'- $P(W|X,\mathcal{M})$ is the weight prior, which is taken as a 0-mean gaussian distribution of precision parameter $\alpha$ herein (it does not depend on $X$).')
     st.write(r'- $P(Y|W,X,\mathcal{M})$ is the likelihood, which in the light of the model $\mathcal{M}$ is a $XW$-mean diagonal gaussian of precision $\beta$.')
-    st.write(r'- $P(Y|X,\mathcal{M})$ is the model evidence which indicates how likely the model was to generate the target values samples, when marginalizing the weights.')
-    st.write(r'- $P(W|Y,X,\mathcal{M})$ is the weights posterior probability distribution.')
-    st.write(r'Maximizing (w.r.t. $W$) the probability $P(W|Y,X,\mathcal{M})$ yields the MAP weights. Marginalizing (w.r.t. $W$) the model prediction form $\mathcal{M}$ yields the measure of the uncertainty in the prediction. ')
+    st.write(r'- $P(Y|X,\mathcal{M})$ is the model evidence which indicates how likely the model was to generate the target samples, when marginalizing the weights.')
+    st.write(r'- $P(W|Y,X,\mathcal{M})$ is the weights posterior probability distribution which is what we want to infer.')
+    st.write(r'Maximizing (w.r.t. $W$) the probability $P(W|Y,X,\mathcal{M})$ yields the MAP weights. Marginalizing (w.r.t. $W$) the model prediction from $\mathcal{M}$ yields the measure of the uncertainty in the prediction. ')
 #    st.write(r'Maximizing (w.r.t. $W$) $P(Y|X,\mathcal{M})$  weights combination (actually a full continuous set) describing every possible models of the form of $\mathcal{M}$.')
     st.write(r'The $\alpha$ and $\beta$ hyperparameter can be set automatically by maximizing the model evidence. Refer to the following book for more details: ')
     st.write(':green_book: Bishop, Christopher. (2006). Pattern Recognition and Machine Learning. 10.1117/1.2819119.')
