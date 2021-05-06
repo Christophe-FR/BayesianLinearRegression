@@ -188,18 +188,6 @@ st.write('')
 st.write('')
 st.write('')
 
-# import time
-# import streamlit as st
-
-# text = "Welcome to the first day... of the rest... of your life"
-
-
-# t = st.empty()
-# for i in range(len(text) + 1):
-#     t.markdown("## %s..." % text[0:i])
-#     time.sleep(0.1)
-
-
 st.write('---')
 if st.button("Learn More about Bayesian Regression"):
     st.write('Bayesian regression is a very powerful framework at the origin of least-square and regularized least square fitting methods. The hearth of the reasoning is the Bayes formula:')
