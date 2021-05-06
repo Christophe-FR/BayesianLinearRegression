@@ -47,10 +47,13 @@ datasource = st.radio('Source',('From CSV', 'From Example: Parabola', 'From Exam
 
 if datasource == 'From CSV' :
     file = st.file_uploader("Upload Files",type=['csv'])
+    kernels = '1'
 elif datasource == 'From Example: Parabola' :
     file = 'samples/parabola.csv'
+    kernels = '1, x**2'
 elif datasource == 'From Example: Sine' :
     file = 'samples/sine.csv'
+    kernels = '1, x**2, x**3'
 else:
     file = None
 
@@ -76,7 +79,7 @@ if df is not None:
     
     st.header('Build additional features')
     st.write('This section offers the opportunity to build extra input features with custom kernels functions applied on the loaded data in order to boost the model representational capability.')
-    fun_str = st.text_input('List of kernel functions (separated by commas) - for example: x**2, sin(x), sqrt(x), 1', value='1')
+    fun_str = st.text_input('List of kernel functions (separated by commas) - for example: x**2, sin(x), sqrt(x), 1', value = kernels)
     if fun_str != '':
         for fun in fun_str.split(','):
             df.insert(loc=0, column=fun.strip(), value=df.eval(fun))
