@@ -29,11 +29,11 @@ def get_table_download_link_csv(df, text = 'download'):
 
 st.title('Bayesian Linear Regression')
 
-st.write('If there is one algorithm that has experienced massive adoption accross all domains, it is surely the least square regression. It is literally everywhere on :earth_americas:! Finance, science and technology use it extensively to predict, model and win the race of high-accuracy systems. The straight line fitting is a typical entry point of the field but many more variants are living out there and are getting increasingly popular with the raise of Artificial Intelligence.')
+st.write('If there is one algorithm that has experienced massive adoption across all domains, it is surely the least-square regression. It is everywhere on :earth_americas:! Finance, science, and technology use it extensively to predict, model, and win the race of high-accuracy systems. The straight-line fitting is a typical entry point of the field but many more variants are living out there and are getting increasingly popular with the rise of Artificial Intelligence.')
 
-st.write('In this application you will be able to experiment with linear models which are both powerful and elegant. A linear model $\mathcal{M}$  attempts to explain the target variable $y$ from a weighted linear combination of the input features $(x_j)_{1..M}$ with the weights $(w_j)_{1..M}$. The general form of a linear model is as follow:')
+st.write('In this application, you will be able to experiment with linear models which are both powerful and elegant. A linear model $\mathcal{M}$  attempts to explain the target variable $y$ from a weighted linear combination of the input features $(x_j)_{1..M}$ with the weights $(w_j)_{1..M}$. The general form of a linear model is as follow:')
 
-st.write(r'$\mathcal{M} : y = \sum{w_jx_j} + \epsilon$ where $\epsilon$ is a 0-mean gaussian noise of precision $\beta=\frac{1}{\sigma^2}$.')
+st.write(r'$\mathcal{M} : y = \sum{w_jx_j} + \epsilon$ where $\epsilon$ is a 0-mean Gaussian noise of precision $\beta=\frac{1}{\sigma^2}$.')
 
 st.write('The goal in the following is to determine the values of weights.')
 
@@ -68,7 +68,7 @@ if df is not None:
     y = df.iloc[:,-1].to_numpy() 
     xlabel = df.columns[-2]
     ylabel = df.columns[-1]
-    st.write("Let's have closer look :sleuth_or_spy:") 
+    st.write("Let's have a closer look :sleuth_or_spy:") 
     fig = px.scatter(x = x, y = y)
     fig.update_layout(xaxis_title= xlabel, yaxis_title= ylabel)
     fig
@@ -94,7 +94,7 @@ if df is not None:
     
     
     st.header('Hyperparameters tuning')
-    st.write('Bias or variance? That is the tradeoff. Hyperparameters are here to fine tune your model. Herein can be adjusted:')
+    st.write('Bias or variance? That is the tradeoff. Hyperparameters are here to fine-tune your model. Herein can be adjusted:')
     st.write(r'- $\alpha$ which is the precision (or inverse variance)  of the weights prior.') 
     st.write(r'- $\beta$ which is the precision (or inverse variance) of the targets.') 
     st.write(r'Note that the ratio $\alpha/\beta$ is called  regularization parameter, or $\lambda$.')
@@ -199,7 +199,7 @@ st.write('')
 
 st.write('---')
 if st.button("Learn More about Bayesian Regression"):
-    st.write('Bayesian regression is a very powerful framework at the origin of least square and regularized least square fitting methods. The hearth of the reasoning is the Bayes formula:')
+    st.write('Bayesian regression is a very powerful framework at the origin of least-square and regularized least square fitting methods. The hearth of the reasoning is the Bayes formula:')
 
     st.write(r'$P(W|Y) = \frac{P(Y|W)P(W)}{P(Y)}$')
 
