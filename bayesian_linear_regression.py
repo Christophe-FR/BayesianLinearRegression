@@ -136,7 +136,7 @@ if df is not None:
     muN = np.dot(X, mN )
     
     st.header('Results')
-    st.write('The plot below shows the prediction with the maximum a posteriori weights, and the posterior predictive distribution which indicates the uncertainty related to both the model and the noise of the target values.')
+    st.write('The plot below shows the prediction with the maximum a posteriori weights, and the posterior predictive distribution which indicates the (one standard deviation) uncertainty related to both the model and the noise of the target values.')
     
     red = 'rgba(255, 0, 0, 0.3)'
     fig = go.Figure()
@@ -201,8 +201,8 @@ if st.button("Learn More about Bayesian Regression"):
     st.write('where $Y = [y_i]$, $X = [x_{i,j}]$ and $W = [w_j]$ are respectively the targets, the features and the weights matrices')
     
     st.write('Let us analyze each terms:')
-    st.write(r'- $P(W|X,\mathcal{M})$ is the weight prior, which is taken as a 0-mean gaussian distribution of precision parameter $\alpha$ herein (it does not depend on $X$).')
-    st.write(r'- $P(Y|W,X,\mathcal{M})$ is the likelihood, which in the light of the model $\mathcal{M}$ is a $XW$-mean diagonal gaussian of precision $\beta$.')
+    st.write(r'- $P(W|X,\mathcal{M})$ is the weight prior, which is taken as a 0-mean Gaussian distribution of precision parameter $\alpha$ herein (it does not depend on $X$).')
+    st.write(r'- $P(Y|W,X,\mathcal{M})$ is the likelihood, which in the light of the model $\mathcal{M}$ is a $XW$-mean diagonal Gaussian of precision $\beta$.')
     st.write(r'- $P(Y|X,\mathcal{M})$ is the model evidence which indicates how likely the model was to generate the target samples, when marginalizing the weights.')
     st.write(r'- $P(W|Y,X,\mathcal{M})$ is the weights posterior probability distribution which is what we want to infer.')
     st.write(r'Maximizing (w.r.t. $W$) the probability $P(W|Y,X,\mathcal{M})$ yields the MAP weights. Marginalizing (w.r.t. $W$) the model prediction from $\mathcal{M}$ yields the measure of the uncertainty in the prediction. ')
