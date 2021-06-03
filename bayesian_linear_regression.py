@@ -56,33 +56,42 @@ elif datasource == 'From Example: Sine' :
     kernels = '1, x**2, x**3'
 else:
     file = None
+    kernels = ''
 
 # create dataframe
 if file is not None:
-    df = pd.read_csv(file)
+    df0 = pd.read_csv(file)
 else:
-    df = None
+    df0 = None
 
 
 # process dataframe
-if df is not None:
-    df
-    x = df.iloc[:,-2].to_numpy()
-    y = df.iloc[:,-1].to_numpy() 
-    xlabel = df.columns[-2]
-    ylabel = df.columns[-1]
+if df0 is not None:
+    df0
+    x = df0.iloc[:,-2].to_numpy()
+    y = df0.iloc[:,-1].to_numpy() 
+    xlabel = df0.columns[-2]
+    ylabel = df0.columns[-1]
     st.write("Let's have a closer look :sleuth_or_spy:") 
     fig = px.scatter(x = x, y = y)
     fig.update_layout(xaxis_title= xlabel, yaxis_title= ylabel)
     fig
     
     
-    st.header('Build additional features')
+    st.header('Select and build features')
     st.write('This section offers the opportunity to build extra input features with custom kernels functions applied on the loaded data in order to boost the model representational capability.')
-    fun_str = st.text_input('List of kernel functions (separated by commas) - for example: x**2, sin(x), sqrt(x), 1', value = kernels)
+    
+    # if st.checkbox('Include raw data as feature', value = True):
+    #     df = df0.copy()
+    # else:
+    df = pd.DataFrame({})
+    df.insert(loc=0, column=ylabel, value=df0.eval(ylabel))
+    
+    
+    fun_str = st.text_input('List of kernel functions (separated by commas) - for example: x**2, sin(x), sqrt(x), 1 for a constant.', value = ', '.join(df0.columns[:-1]) + ', ' + kernels)
     if fun_str != '':
         for fun in fun_str.split(','):
-            df.insert(loc=0, column=fun.strip(), value=df.eval(fun))
+            df.insert(loc=0, column=fun.strip(), value=df0.eval(fun))
     df
     
     
@@ -138,16 +147,20 @@ if df is not None:
     st.header('Results')
     st.write('The plot below shows the prediction with the maximum a posteriori weights, and the posterior predictive distribution which indicates the (one standard deviation) uncertainty related to both the model and the noise of the target values.')
     
+
+    res_en = st.radio("", ('Predictions', 'Residuals')) == 'Residuals'
+
+
     red = 'rgba(255, 0, 0, 0.3)'
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=x, y=muN - sigmaN,
+    fig.add_trace(go.Scatter(x=x, y=muN - sigmaN - res_en * y,
         fill=None,
         mode='lines',
         line_color=red,
         ))
     fig.add_trace(go.Scatter(
         x = x,
-        y = muN,
+        y = muN - res_en * y,
         fill ='tonexty', # fill area between trace0 and trace1
         mode ='markers + lines',
         line_color = 'red',
@@ -155,7 +168,7 @@ if df is not None:
         ))
     fig.add_trace(go.Scatter(
         x = x,
-        y = muN + sigmaN,
+        y = muN + sigmaN - res_en * y,
         fill ='tonexty', # fill area between trace0 and trace1
         mode ='lines',
         line_color = red,
@@ -163,24 +176,28 @@ if df is not None:
         ))
     fig.add_trace(go.Scatter(
         x = x,
-        y = y,
+        y = y - res_en * y,
         mode ='markers',
         line_color = 'blue',
         ))
     fig.update_layout(showlegend=False)
-    fig.update_layout(xaxis_title= xlabel, yaxis_title= ylabel)
+    fig.update_layout(xaxis_title= xlabel, yaxis_title= res_en * u"\u0394" + ylabel)
     fig
     
     weights= pd.DataFrame({'Weights': df.columns[0:-1], 'Values': mN})
     
-    st.write(r'$y \approx$')
+    st.write('$' + ylabel + r' \approx$')
     for j, label in enumerate(weights['Weights']):
         st.write(weights['Values'][j], ' $' + label + (j!=M-1)*'+' + '$')
-        
-        
+    
     st.write('')
+    
+    st.write('$'  + "|" + u"\u0394" + ylabel + "|" + r'<$')
+    st.write(np.max(np.abs(muN - y)))
+    
+    st.write('')
+    
     st.markdown(get_table_download_link_csv(weights, 'Download weights as CSV.'), unsafe_allow_html=True)
-
 
 
 
@@ -189,7 +206,8 @@ st.write('')
 st.write('')
 
 st.write('---')
-if st.button("Learn More about Bayesian Regression"):
+
+with st.beta_expander("Learn More about Bayesian Regression"):
     st.write('Bayesian regression is a very powerful framework at the origin of least-square and regularized least square fitting methods. The hearth of the reasoning is the Bayes formula:')
 
     st.write(r'$P(W|Y) = \frac{P(Y|W)P(W)}{P(Y)}$')
@@ -211,8 +229,7 @@ if st.button("Learn More about Bayesian Regression"):
     st.write(':green_book: Bishop, Christopher. (2006). Pattern Recognition and Machine Learning. 10.1117/1.2819119.')
     
     
-    
-st.write('---')
+
 
 
 
