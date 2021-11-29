@@ -1,7 +1,7 @@
 # BayesianLinearRegression
 This repository implements a bayesian linear regression web application!
 
-The application is currently running at this URL:
+This application is currently running at this URL:
 https://share.streamlit.io/christophe-fr/bayesianlinearregression/main/bayesian_linear_regression.py
 
 <!-- 
