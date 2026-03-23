@@ -72,7 +72,7 @@ if df0 is not None:
     y = df0.iloc[:,-1].to_numpy() 
     xlabel = df0.columns[-2]
     ylabel = df0.columns[-1]
-    st.write("Let's have a closer look :sleuth_or_spy:") 
+    st.write("Let's have a closer look 🕵️")
     fig = px.scatter(x = x, y = y)
     fig.update_layout(xaxis_title= xlabel, yaxis_title= ylabel)
     fig
@@ -110,7 +110,8 @@ if df0 is not None:
     st.write(r'- $\alpha$ which is the precision (or inverse variance)  of the weights prior.') 
     st.write(r'- $\beta$ which is the precision (or inverse variance) of the targets.') 
     st.write(r'Note that the ratio $\alpha/\beta$ is called  regularization parameter, or $\lambda$.')
-    
+    st.write(r'Note that $\gamma$ is the effective number of parameters.')
+
     
     eps = np.finfo(float).eps
     alpha_trainable = st.checkbox('Make Alpha trainable',True)
@@ -119,8 +120,9 @@ if df0 is not None:
     beta_trainable = st.checkbox('Make Beta trainable',True)
     beta = eps + st.slider(label = 'Beta' + beta_trainable * '_0', value = 1.0, min_value = 0.0, max_value = 100.0, step = 0.5)
     
-    hpdf = pd.DataFrame({'alpha': [alpha], 'beta': [beta], 'gamma': [gamma], 'lambda': [alpha/beta]})
+    hpdf = pd.DataFrame({'alpha': [alpha], 'beta': [beta], 'gamma': [0.0], 'lambda': [alpha/beta]})
     
+
     thres = 1e-6
     overflow = 1e12
     for _ in range(1000):
@@ -138,7 +140,7 @@ if df0 is not None:
         lmbda = alpha/beta
         if (np.abs(alpha - hpdf['alpha'].iloc[-1]) < thres and np.abs(beta - hpdf['beta'].iloc[-1]) < thres) or alpha > overflow or beta > overflow:
             break;
-        hpdf = hpdf.append({'alpha': alpha, 'beta': beta, 'gamma': gamma, 'lambda': alpha/beta},ignore_index=True)     
+        hpdf = pd.concat([hpdf, pd.DataFrame({'alpha': [alpha], 'beta': [beta], 'gamma': [gamma], 'lambda': [alpha/beta]})], ignore_index=True)
     hpdf
     
     sigmaN = np.sqrt(1/beta + np.diag(np.dot(X,np.dot(SN,X.T))))
@@ -207,7 +209,7 @@ st.write('')
 
 st.write('---')
 
-with st.beta_expander("Learn More about Bayesian Regression"):
+with st.expander("Learn More about Bayesian Regression"):
     st.write('Bayesian regression is a very powerful framework at the origin of least-square and regularized least square fitting methods. The hearth of the reasoning is the Bayes formula:')
 
     st.write(r'$P(W|Y) = \frac{P(Y|W)P(W)}{P(Y)}$')
@@ -226,7 +228,7 @@ with st.beta_expander("Learn More about Bayesian Regression"):
     st.write(r'Maximizing (w.r.t. $W$) the probability $P(W|Y,X,\mathcal{M})$ yields the MAP weights. Marginalizing (w.r.t. $W$) the model prediction from $\mathcal{M}$ yields the measure of the uncertainty in the prediction. ')
 #    st.write(r'Maximizing (w.r.t. $W$) $P(Y|X,\mathcal{M})$  weights combination (actually a full continuous set) describing every possible models of the form of $\mathcal{M}$.')
     st.write(r'The $\alpha$ and $\beta$ hyperparameter can be set automatically by maximizing the model evidence. Refer to the following book for more details: ')
-    st.write(':green_book: Bishop, Christopher. (2006). Pattern Recognition and Machine Learning. 10.1117/1.2819119.')
+    st.write(':green_book: Bishop, Christopher. (2006). Pattern Recognition and Machine Learning. 10.1117/1.2819119. Page 152 to 171.')
     
     
 

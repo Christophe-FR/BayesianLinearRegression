@@ -1,6 +1,6 @@
-matplotlib==3.1.1
-sympy==1.4
-pandas==0.25.1
-numpy==1.20.1
-plotly==4.14.3
-streamlit==0.78.0
+matplotlib>=3.7
+sympy>=1.12
+pandas>=2.0
+numpy>=1.26
+plotly>=5.18
+streamlit>=1.32
